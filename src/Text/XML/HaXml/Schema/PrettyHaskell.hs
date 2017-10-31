@@ -10,15 +10,18 @@ module Text.XML.HaXml.Schema.PrettyHaskell
   , ppvList
   ) where
 
-import Text.XML.HaXml.Types (QName(..),Namespace(..))
-import Text.XML.HaXml.Schema.HaskellTypeModel
-import Text.XML.HaXml.Schema.XSDTypeModel (Occurs(..))
-import Text.XML.HaXml.Schema.NameConversion
-import Text.PrettyPrint.HughesPJ as PP
+import           Text.PrettyPrint.HughesPJ              as PP
+import           Text.XML.HaXml.Schema.HaskellTypeModel
+import           Text.XML.HaXml.Schema.NameConversion
+import           Text.XML.HaXml.Schema.XSDTypeModel     (Occurs (..))
+import           Text.XML.HaXml.Types                   (Namespace (..),
+                                                         QName (..))
 
-import Data.List (intersperse,notElem,inits)
-import Data.Maybe (isJust,fromJust,fromMaybe,catMaybes)
-import Data.Char (toLower)
+import           Data.Char                              (toLower)
+import           Data.List                              (inits, intersperse,
+                                                         notElem)
+import           Data.Maybe                             (catMaybes, fromJust,
+                                                         fromMaybe, isJust)
 
 -- | Vertically pretty-print a list of things, with open and close brackets,
 --   and separators.
@@ -64,7 +67,7 @@ ppCommentForChoice pos outer nested =
                         [1..]
               $ map (map safeComment)
               $ nested
-    safeComment Text = "mixed text"
+    safeComment Text        = "mixed text"
     safeComment e@Element{} = fromMaybe (xname $ elem_name e) (elem_comment e)
     safeComment e@_         = fromMaybe ("unknown") (elem_comment e)
     xname (XName (N x))     = x
@@ -130,12 +133,12 @@ ppModule nx m =
     $$ ppHighLevelDecls nx (module_decls m)
 
   where
-    imports (ElementsAttrsAbstract _ deps _) = deps
+    imports (ElementsAttrsAbstract _ deps _)           = deps
     imports (ExtendComplexTypeAbstract _ _ deps _ _ _) = deps
-    imports _ = []
+    imports _                                          = []
 
     importElems (ElementAbstractOfType _ _ deps _) = deps
-    importElems _ = []
+    importElems _                                  = []
 
     ppFwdDecl (_,   Nothing)  = empty
     ppFwdDecl (name,Just mod) = text "import {-# SOURCE #-}" <+> ppModId nx mod
@@ -249,11 +252,11 @@ ppHighLevelDecl nx (RestrictSimpleType t s r comm) =
                       <+> text "where"
         $$ nest 4 (text "restricts (" <> ppUnqConId nx t <+> text "x) = x")
     $$ text "instance SchemaType" <+> ppUnqConId nx t <+> text "where"
-        $$ nest 4 (text "parseSchemaType s = do" 
+        $$ nest 4 (text "parseSchemaType s = do"
                   $$ nest 4 (text "e <- element [s]"
                            $$ text "commit $ interior e $ parseSimpleType")
                   )
-        $$ nest 4 (text "schemaTypeToXML s ("<> ppUnqConId nx t <+> text "x) = " 
+        $$ nest 4 (text "schemaTypeToXML s ("<> ppUnqConId nx t <+> text "x) = "
                   $$ nest 4 (text "toXMLElement s [] [toXMLText (simpleTypeText x)]")
                   )
     $$ text "instance SimpleType" <+> ppUnqConId nx t <+> text "where"
@@ -286,7 +289,7 @@ ppHighLevelDecl nx (ExtendSimpleType t s as comm) =
         $$ nest 4 (ppFields nx t_attrs [] as
                   $$ text "deriving (Eq,Show)")
     $$ text "instance SchemaType" <+> ppUnqConId nx t <+> text "where"
-        $$ nest 4 (text "parseSchemaType s = do" 
+        $$ nest 4 (text "parseSchemaType s = do"
                   $$ nest 4 (text "(pos,e) <- posnElement [s]"
                             $$ text "commit $ do"
                             $$ nest 2
@@ -337,11 +340,11 @@ ppHighLevelDecl nx (EnumSimpleType t is comm) =
     $$ text "data" <+> ppUnqConId nx t
         $$ nest 4 ( ppvList "=" "|" "deriving (Eq,Show,Enum)" item is )
     $$ text "instance SchemaType" <+> ppUnqConId nx t <+> text "where"
-        $$ nest 4 (text "parseSchemaType s = do" 
+        $$ nest 4 (text "parseSchemaType s = do"
                   $$ nest 4 (text "e <- element [s]"
                            $$ text "commit $ interior e $ parseSimpleType")
                   )
-        $$ nest 4 (text "schemaTypeToXML s x = " 
+        $$ nest 4 (text "schemaTypeToXML s x = "
                   $$ nest 4 (text "toXMLElement s [] [toXMLText (simpleTypeText x)]")
                   )
     $$ text "instance SimpleType" <+> ppUnqConId nx t <+> text "where"
@@ -363,7 +366,7 @@ ppHighLevelDecl nx (ElementsAttrs t es as comm) =
         $$ nest 8 (ppFields nx t (uniqueify es) as
                   $$ text "deriving (Eq,Show)")
     $$ text "instance SchemaType" <+> ppUnqConId nx t <+> text "where"
-        $$ nest 4 (text "parseSchemaType s = do" 
+        $$ nest 4 (text "parseSchemaType s = do"
                   $$ nest 4 (text "(pos,e) <- posnElement [s]"
                        --   $$ text "commit $ do"
                        --   $$ nest 2
@@ -415,7 +418,7 @@ ppHighLevelDecl nx (ElementsAttrsAbstract t insts comm) =
 --      <+> text "(declared in Instance module)"
 --  *** Declare instance here
     $$ text "instance SchemaType" <+> ppUnqConId nx t <+> text "where"
-        $$ nest 4 (text "parseSchemaType s = do" 
+        $$ nest 4 (text "parseSchemaType s = do"
                   $$ nest 4 (vcat (intersperse (text "`onFail`")
                                                (map ppParse insts)
                                    ++ [text "`onFail` fail" <+> errmsg])))
@@ -454,7 +457,7 @@ ppHighLevelDecl nx (ElementsAttrsAbstract t insts comm) =
     toXML (name,_) = text "schemaTypeToXML _s ("
                      <> con name <+> text "x) = schemaTypeToXML \""
                      <> ppXName (initLower name) <> text "\" x"
-    initLower (XName (N (c:cs))) = XName $ N (toLower c:cs)
+    initLower (XName (N (c:cs)))     = XName $ N (toLower c:cs)
     initLower (XName (QN ns (c:cs))) = XName $ QN ns (toLower c:cs)
 
 ppHighLevelDecl nx (ElementOfType e@Element{}) =
@@ -535,7 +538,7 @@ ppHighLevelDecl nx (Group t es comm) = PP.empty
 --  $$ text "data" <+> ppConId nx t <+> text "="
 --                 <+> ppConId nx t <+> hsep (map (ppConId nx . elem_type) es)
 
--- Possibly we want to declare a really more restrictive type, e.g. 
+-- Possibly we want to declare a really more restrictive type, e.g.
 --    to remove optionality, (Maybe Foo) -> (Foo), [Foo] -> Foo
 --    consequently the "restricts" method should do a proper translation,
 --    not merely an unwrapping.
@@ -570,8 +573,8 @@ ppHighLevelDecl nx (ExtendComplexType t s es as _ comm)
                    $$ text "extension (" <> ppConId nx t <> text " s e) = e")
 -}
 
-ppHighLevelDecl nx (ExtendComplexType t s oes oas es as
-                                      fwdReqd absSup grandsuper comm) =
+ppHighLevelDecl nx comp@(ExtendComplexType t s oes oas es as
+                                           fwdReqd absSup grandsuper comm) =
     ppHighLevelDecl nx (ElementsAttrs t (oes++es) (oas++as) comm)
     $$ ppExtension nx t s fwdReqd absSup oes oas es as
     $$ (if not (null grandsuper) -- && not (isJust fwdReqd) -- && isJust fwdReqd
@@ -606,7 +609,7 @@ ppHighLevelDecl nx (XSDComment comm) =
 ppHighLevelInstances :: NameConverter -> Decl -> Doc
 ppHighLevelInstances nx (ElementsAttrsAbstract t insts comm) =
     text "instance SchemaType" <+> ppUnqConId nx t <+> text "where"
-        $$ nest 4 (text "parseSchemaType s = do" 
+        $$ nest 4 (text "parseSchemaType s = do"
                   $$ nest 4 (vcat (intersperse (text "`onFail`")
                                                (map ppParse insts)
                                    ++ [text "`onFail` fail" <+> errmsg])))
@@ -775,7 +778,7 @@ ppFieldName nx t e@Text{}    i = ppFieldId nx t (XName $ N $"text"++show i)
 ppElemTypeName :: NameConverter -> (Doc->Doc) -> Element -> Doc
 ppElemTypeName nx brack e@Element{} =
     ppTypeModifier (elem_modifier e) brack $ ppConId nx (elem_type e)
-ppElemTypeName nx brack e@OneOf{}   = 
+ppElemTypeName nx brack e@OneOf{}   =
     brack $ ppTypeModifier (liftedElemModifier e) parens $
     text "OneOf" <> text (show (length (elem_oneOf e)))
      <+> hsep (map (ppSeq . cleanChoices) (elem_oneOf e))
@@ -851,8 +854,8 @@ liftedElemModifier :: Element -> Modifier
 liftedElemModifier e@OneOf{} =
     case elem_modifier e of
       Range (Occurs Nothing Nothing) -> newModifier
-      Single -> newModifier
-      m -> m
+      Single                         -> newModifier
+      m                              -> m
   where
     newModifier = if all (\x-> case x of
                                  Text -> True
@@ -889,4 +892,3 @@ uniqueify = go []
                                  dropWhile pred [(n++show i) | i <- [2..]]
     new pred (XName (QN ns n)) = XName $ QN ns $ head $
                                  dropWhile pred [(n++show i) | i <- [2..]]
-
