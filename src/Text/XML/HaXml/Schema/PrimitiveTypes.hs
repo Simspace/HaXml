@@ -51,12 +51,12 @@ module Text.XML.HaXml.Schema.PrimitiveTypes
   , PositiveInteger(..)
   ) where
 
-import Text.Parse
-import Data.Char as Char
+import           Data.Char            as Char
+import           Text.Parse
 --import Data.Time.LocalTime -- for dates and times?
-import Text.XML.HaXml.Types (QName(..))
-import Data.Int
-import Data.Word
+import           Data.Int
+import           Data.Word
+import           Text.XML.HaXml.Types (QName (..))
 
 -- | Ultimately, an XML parser will find some plain text as the content
 --   of a simpleType, which will need to be parsed.  We use a TextParser,
@@ -297,4 +297,3 @@ instance SimpleType UnsignedByte where
 instance SimpleType PositiveInteger where
     acceptingParser = fmap Positive parse
     simpleTypeText (Positive x) = show x
-
