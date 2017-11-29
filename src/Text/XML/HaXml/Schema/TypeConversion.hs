@@ -3,19 +3,23 @@ module Text.XML.HaXml.Schema.TypeConversion
   ( module Text.XML.HaXml.Schema.TypeConversion
   ) where
 
-import Text.XML.HaXml.Types (QName(..),Name(..),Namespace(..))
-import Text.XML.HaXml.Namespaces (printableName,localName)
-import Text.XML.HaXml.Schema.Environment
-import Text.XML.HaXml.Schema.XSDTypeModel     as XSD
-import Text.XML.HaXml.Schema.HaskellTypeModel as Haskell
-import Text.XML.HaXml.Schema.NameConversion
-import Text.XML.HaXml.Schema.Parse (xsd)
+import           Text.XML.HaXml.Namespaces              (localName,
+                                                         printableName)
+import           Text.XML.HaXml.Schema.Environment
+import           Text.XML.HaXml.Schema.HaskellTypeModel as Haskell
+import           Text.XML.HaXml.Schema.NameConversion
+import           Text.XML.HaXml.Schema.Parse            (xsd)
+import           Text.XML.HaXml.Schema.XSDTypeModel     as XSD
+import           Text.XML.HaXml.Types                   (Name (..),
+                                                         Namespace (..),
+                                                         QName (..))
 
-import qualified Data.Map as Map
-import Data.Map (Map)
-import Data.List (foldl')
-import Data.Maybe (fromMaybe,fromJust,isNothing,isJust)
-import Data.Monoid
+import           Data.List                              (foldl')
+import           Data.Map                               (Map)
+import qualified Data.Map                               as Map
+import           Data.Maybe                             (fromJust, fromMaybe,
+                                                         isJust, isNothing)
+import           Data.Monoid
 
 -- | Transform a Schema by lifting all locally-defined anonymous types to
 --   the top-level, naming them, and planting a referend at their original
@@ -54,7 +58,7 @@ typeLift s = s{ schema_items =
                       v@ComplexContent{ci_stuff=Right (Extension{extension_newstuff=PA p _ _})} -> particle p
                       v@ThisType{ci_thistype=PA p _ _} -> particle p
               )
-    particle Nothing = []
+    particle Nothing           = []
     particle (Just (Left cos)) = choiceOrSeq cos
     particle (Just (Right g))  = maybe [] choiceOrSeq $ group_stuff g
     choiceOrSeq (XSD.All _ es)        = concatMap findE es
@@ -147,7 +151,7 @@ convert env s = concatMap item (schema_items s)
     isEnumeration (UnionOf _ _ _ u ms) =
         squeeze [] ( flip map ms (\m-> case Map.lookup m (env_type env) of
                                          Just (Left s)-> isEnumeration s
-                                         _            -> Nothing)
+                                         _             -> Nothing)
                      ++ map isEnumeration u )
         where squeeze _  (Nothing:_)    = Nothing
               squeeze xs (Just ys:rest) = squeeze (xs++ys) rest
@@ -436,9 +440,9 @@ convert env s = concatMap item (schema_items s)
     anyToEnd = go Nothing
       where go _ (e@[AnyElem{}]:[]) = e:[]
             go _ (e@[AnyElem{}]:es) = go (Just e) es
-            go Nothing  []        = []
-            go (Just e) []        = e:[]
-            go m (e:es)           = e:go m es
+            go Nothing  []          = []
+            go (Just e) []          = e:[]
+            go m (e:es)             = e:go m es
 
     contentInfo :: Maybe (Either SimpleType ComplexType)
                    -> ([Haskell.Element],[Haskell.Attribute])
@@ -572,7 +576,7 @@ supertypeOf env t =
     do typ <- Map.lookup t (env_type env)
        a <- either (const Nothing) (Just . complex_content) typ
        b <- case a of ComplexContent{} -> Just (ci_stuff a)
-                      _ -> Nothing
+                      _                -> Nothing
        either (const Nothing) (Just . extension_base) b
 
 -- | Keep applying the function to transform the value, until it yields
