@@ -132,7 +132,10 @@ instance Eq AnyElement where
     a == b  =  show a == show b
 instance SchemaType AnyElement where
     parseSchemaType _ = parseAnyElement
-    schemaTypeToXML _ = toXMLAnyElement
+    -- added by mjrussell, want to use the schematype of an any if
+    -- it has one, otherwise the unconverted
+    schemaTypeToXML _ unc@(UnconvertedANY _) = toXMLAnyElement unc
+    schemaTypeToXML s (ANYSchemaType a)      = schemaTypeToXML s a
 
 parseAnyElement :: XMLParser AnyElement
 parseAnyElement = fmap UnconvertedANY next
