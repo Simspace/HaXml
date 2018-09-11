@@ -3,6 +3,9 @@ module Text.XML.HaXml.Schema.XSDTypeModel
   ) where
 
 import Data.Monoid hiding (Any)
+#if __GLASGOW_HASKELL__ < 803
+import Data.Semigroup (Semigroup((<>)))
+#endif
 import Text.XML.HaXml.Types      (Name,Namespace,QName)
 
 data Schema        = Schema
