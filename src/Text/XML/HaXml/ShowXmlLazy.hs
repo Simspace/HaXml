@@ -5,7 +5,11 @@ import Text.XML.HaXml.Namespaces
 import Text.XML.HaXml.TypeMapping -- (toHType, toDTD, Tuple(), Defined, showHType)
 
 import qualified Text.XML.HaXml.XmlContent as X
+#if __GLASGOW_HASKELL__ >= 803
+import Prelude hiding (maybe,either,(<>))
+#else
 import Prelude hiding (maybe,either)
+#endif
 import Data.Maybe hiding (maybe)
 import Data.List
 

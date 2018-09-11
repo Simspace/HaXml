@@ -3,6 +3,9 @@ module Text.XML.HaXml.Schema.XSDTypeModel
   ) where
 
 import Data.Monoid hiding (Any)
+#if __GLASGOW_HASKELL__ < 803
+import Data.Semigroup (Semigroup((<>)))
+#endif
 import Text.XML.HaXml.Types      (Name,Namespace,QName)
 
 data Schema        = Schema
@@ -56,7 +59,7 @@ data SimpleType    = Primitive  { simple_primitive   :: PrimitiveType }
                      deriving (Eq,Show)
 
 data Restriction   = RestrictSim1 { restrict_annotation :: Annotation
-                                  , restrict_base       :: Maybe QName 
+                                  , restrict_base       :: Maybe QName
                                   , restrict_r1         :: Restriction1
                                   }
                    | RestrictType { restrict_annotation :: Annotation
@@ -248,7 +251,7 @@ data PrimitiveType = String | Boolean | Decimal | Float | Double
                    | Base64Binary | HexBinary
                    | AnyURI | QName | Notation
                      deriving (Eq,Show)
-               
+
 
 data MyRestriction = Range Occurs
                    | Pattern Regexp
@@ -291,11 +294,17 @@ type Regexp        = String
 type URI           = String
 type TypeName      = String
 
+instance Semigroup Annotation where
+  (<>) = mappend
+
 instance Monoid Annotation where
   mempty = NoAnnotation "Monoid.mempty <Annotation>"
   (Documentation d) `mappend` (Documentation e) = Documentation (d++"\n"++e)
   _                 `mappend` (Documentation e) = Documentation e
-  ann               `mappend` _                 = ann          
+  ann               `mappend` _                 = ann
+
+instance Semigroup Schema where
+  (<>) = mappend
 
 -- This instance is pretty unsatisfactory, and is useful only for
 -- building environments involving recursive modules.  The /mappend/

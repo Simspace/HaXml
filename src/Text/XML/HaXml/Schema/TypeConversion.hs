@@ -20,6 +20,9 @@ import qualified Data.Map                               as Map
 import           Data.Maybe                             (fromJust, fromMaybe,
                                                          isJust, isNothing)
 import           Data.Monoid
+#if __GLASGOW_HASKELL__ < 803
+import           Data.Semigroup                         (Semigroup((<>)))
+#endif
 
 -- | Transform a Schema by lifting all locally-defined anonymous types to
 --   the top-level, naming them, and planting a referend at their original
@@ -541,6 +544,9 @@ consolidate (Occurs min max) (UnorderedMinLength,_,n) =
              Occurs (Just (read n)) max
 consolidate (Occurs min max) (UnorderedMaxLength,_,n) =
              Occurs min (Just (read n))
+
+instance Semigroup Occurs where
+    (<>) = mappend
 
 instance Monoid Occurs where
     mempty = Occurs Nothing Nothing
