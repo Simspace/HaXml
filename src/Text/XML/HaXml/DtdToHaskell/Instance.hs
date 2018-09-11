@@ -2,6 +2,9 @@ module Text.XML.HaXml.DtdToHaskell.Instance
   ( mkInstance
   ) where
 
+#if __GLASGOW_HASKELL__ >= 803
+import Prelude         hiding ( (<>) )
+#endif
 import Data.List (intersperse)
 
 import Text.XML.HaXml.DtdToHaskell.TypeDef

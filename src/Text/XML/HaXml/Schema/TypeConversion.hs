@@ -542,6 +542,9 @@ consolidate (Occurs min max) (UnorderedMinLength,_,n) =
 consolidate (Occurs min max) (UnorderedMaxLength,_,n) =
              Occurs min (Just (read n))
 
+instance Semigroup Occurs where
+    (<>) = mappend
+
 instance Monoid Occurs where
     mempty = Occurs Nothing Nothing
     (Occurs Nothing  Nothing)  `mappend` o  = o

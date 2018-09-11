@@ -18,6 +18,9 @@ module Text.XML.HaXml.DtdToHaskell.TypeDef
   , name, name_, name_a, name_ac, name_f, mangle, manglef
   ) where
 
+#if __GLASGOW_HASKELL__ >= 803
+import Prelude         hiding ( (<>) )
+#endif
 import Data.Char (isLower, isUpper, toLower, toUpper, isDigit)
 import Data.List (intersperse)
 import Text.PrettyPrint.HughesPJ

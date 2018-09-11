@@ -10,6 +10,9 @@ module Text.XML.HaXml.Schema.PrettyHsBoot
   , ppvList
   ) where
 
+#if __GLASGOW_HASKELL__ >= 803
+import Prelude hiding ((<>))
+#endif
 import Text.XML.HaXml.Types (QName(..),Namespace(..))
 import Text.XML.HaXml.Schema.HaskellTypeModel
 import Text.XML.HaXml.Schema.XSDTypeModel (Occurs(..))
@@ -222,7 +225,7 @@ ppHighLevelDecl nx (Group t es comm) = PP.empty
 --  $$ text "data" <+> ppConId nx t <+> text "="
 --                 <+> ppConId nx t <+> hsep (map (ppConId nx . elem_type) es)
 
--- Possibly we want to declare a really more restrictive type, e.g. 
+-- Possibly we want to declare a really more restrictive type, e.g.
 --    to remove optionality, (Maybe Foo) -> (Foo), [Foo] -> Foo
 --    consequently the "restricts" method should do a proper translation,
 --    not merely an unwrapping.
@@ -377,7 +380,7 @@ ppFieldElement nx t e@Text{}    i = ppFieldId nx t (XName $ N $"text"++show i)
 ppElemTypeName :: NameConverter -> (Doc->Doc) -> Element -> Doc
 ppElemTypeName nx brack e@Element{} =
     ppTypeModifier (elem_modifier e) brack $ ppConId nx (elem_type e)
-ppElemTypeName nx brack e@OneOf{}   = 
+ppElemTypeName nx brack e@OneOf{}   =
     brack $ ppTypeModifier (elem_modifier e) parens $
     text "OneOf" <> text (show (length (elem_oneOf e)))
      <+> hsep (map ppSeq (elem_oneOf e))

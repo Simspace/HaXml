@@ -10,6 +10,9 @@ module Text.XML.HaXml.Schema.PrettyHaskell
   , ppvList
   ) where
 
+#if __GLASGOW_HASKELL__ >= 803
+import Prelude hiding ((<>))
+#endif
 import           Text.PrettyPrint.HughesPJ              as PP
 import           Text.XML.HaXml.Schema.HaskellTypeModel
 import           Text.XML.HaXml.Schema.NameConversion

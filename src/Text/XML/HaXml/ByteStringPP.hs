@@ -20,7 +20,11 @@ module Text.XML.HaXml.ByteStringPP
   ,   cp
   ) where
 
+#if __GLASGOW_HASKELL__ >= 803
+import Prelude hiding (maybe,either,elem,concat,(<>))
+#else
 import Prelude hiding (maybe,either,elem,concat)
+#endif
 import Data.Maybe hiding (maybe)
 import Data.List (intersperse)
 --import Data.ByteString.Lazy hiding (pack,map,head,any,singleton,intersperse,join)

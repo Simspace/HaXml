@@ -21,7 +21,11 @@ module Text.XML.HaXml.Pretty
   ,   cp
   ) where
 
+#if __GLASGOW_HASKELL__ >= 803
+import Prelude hiding (maybe, either, (<>))
+#else
 import Prelude hiding (maybe,either)
+#endif
 import Data.Maybe hiding (maybe)
 import Data.List (intersperse)
 --import Char (isSpace)

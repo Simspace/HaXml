@@ -8,7 +8,11 @@ module Text.XML.HaXml.Html.Pretty
   , content
   ) where
 
+#if __GLASGOW_HASKELL__ >= 803
+import Prelude hiding (maybe, either, (<>))
+#else
 import Prelude hiding (maybe,either)
+#endif
 import Data.Maybe hiding (maybe)
 import Data.List (intersperse)
 import Data.Char (isSpace)
@@ -58,7 +62,7 @@ misc (Comment s)           = text "<!--" <+> text s <+> text "-->"
 misc (PI (n,s))            = text "<?" <> text n <+> text s <+> text "?>"
 sddecl sd   | sd           = text "standalone='yes'"
             | otherwise    = text "standalone='no'"
-doctypedecl (DTD n eid ds) = if null ds then 
+doctypedecl (DTD n eid ds) = if null ds then
                                   hd <> text ">"
                              else hd <+> text " [" $$
                                   vcat (map markupdecl ds) $$ text "]>"
